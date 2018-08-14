@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TodoApi.Models;
 
@@ -13,18 +11,16 @@ namespace TodoApi.Controllers
     [ApiController]
     public class TodoController : ControllerBase
     {
-
         private readonly TodoContext _context;
 
         public TodoController(TodoContext context)
         {
             _context = context;
 
-            if (_context.TodoItems.Count() == 0)
-            {
-                _context.TodoItems.Add(new TodoItem { Name = "Item1" });
-                _context.SaveChanges();
-            }
+            if (_context.TodoItems.Any()) return;
+
+            _context.TodoItems.Add(new TodoItem { Name = "Item1" });
+            _context.SaveChanges();
         }
 
         [HttpGet]
@@ -37,11 +33,7 @@ namespace TodoApi.Controllers
         public ActionResult<TodoItem> GetById(long id)
         {
             var item = _context.TodoItems.Find(id);
-            if (item == null)
-            {
-                return NotFound();
-            }
-            return item;
+            return item ?? (ActionResult<TodoItem>) NotFound();
         }
 
         [HttpPost]
